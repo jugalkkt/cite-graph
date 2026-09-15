@@ -1,0 +1,314 @@
+
+[22:29:54] Checking prerequisites
+  ✔ Java: openjdk version "21.0.12.1" 2026-08-18
+  ✔ Hadoop: Hadoop 3.4.3
+  ✔ scala-cli: Scala CLI version: 1.17.1
+  ✔ Spark already installed at /home/jefin/Code/Krisko/clg/tools/spark-4.0.4-bin-hadoop3
+  ✔ Spark version 4.0.4 / Scala 2.13.16
+  ✔ Already downloaded: arxiv.zip
+  ✔ Already downloaded: titleabs.tsv.gz
+
+[22:29:56] Integrity checks
+  ✔ arxiv.zip is a valid archive
+  ✔ titleabs.tsv.gz is a valid gzip
+  ✔ Raw files:
+     mapping/labelidx2arxivcategeory.csv.gz                    4 KB
+     mapping/nodeidx2paperid.csv.gz                         1196 KB
+     raw/edge.csv.gz                                        4916 KB
+     raw/node-feat.csv.gz                                  74568 KB
+     raw/node-label.csv.gz                                   124 KB
+     raw/node_year.csv.gz                                     72 KB
+     raw/num-edge-list.csv.gz                                  4 KB
+     raw/num-node-list.csv.gz                                  4 KB
+     split/time/test.csv.gz                                  112 KB
+     split/time/train.csv.gz                                 208 KB
+     split/time/valid.csv.gz                                  68 KB
+
+[22:29:57] Starting HDFS
+  ✔ NameNode already running
+  ✔ HDFS is up at hdfs://localhost:9000
+     888059 SecondaryNameNode
+     887627 NameNode
+     887827 DataNode
+
+[22:30:01] Ingesting raw files into hdfs://localhost:9000/user/jefin/citation/raw
+  ✔ edges/edge.csv
+  ✔ nodes/node_year.csv
+  ✔ nodes/node_label.csv
+  ✔ mapping/nodeidx2paperid.csv
+  ✔ mapping/labelidx2arxivcategory.csv
+  ✔ titles/titleabs.tsv
+
+[22:30:20] HDFS contents
+         14.1 MB  /user/jefin/citation/raw/edges/edge.csv
+          0.0 MB  /user/jefin/citation/raw/mapping/labelidx2arxivcategory.csv
+          2.8 MB  /user/jefin/citation/raw/mapping/nodeidx2paperid.csv
+          0.5 MB  /user/jefin/citation/raw/nodes/node_label.csv
+          0.8 MB  /user/jefin/citation/raw/nodes/node_year.csv
+        200.0 MB  /user/jefin/citation/raw/titles/titleabs.tsv
+     total: 218.1 M
+     Status: HEALTHY
+     Total blocks (validated):	7 (avg. block size 32676449 B)
+
+[22:30:23] Building the Spark application with scala-cli
+Wrote /home/jefin/Code/Krisko/clg/spark-app/target/citation-analyzer.jar
+  ✔ Built /home/jefin/Code/Krisko/clg/spark-app/target/citation-analyzer.jar (80K)
+
+[22:30:29] Stage 1: Spark ETL   hdfs://localhost:9000/user/jefin/citation/raw  ->  hdfs://localhost:9000/user/jefin/citation/clean
+WARNING: Using incubator modules: jdk.incubator.vector
+22:30:30 WARN SparkConf: Note that spark.local.dir will be overridden by the value set by the cluster manager (via SPARK_LOCAL_DIRS in standalone/kubernetes and LOCAL_DIRS in YARN).
+22:30:34 INFO citation: vertices.year_rows                            169343
+22:30:34 INFO citation: vertices.label_rows                           169343
+22:30:36 INFO citation: titles.raw_rows                               179719
+22:30:39 INFO citation: vertices.dropped_invalid                      0
+22:30:39 INFO citation: vertices.clean                                169343
+22:30:39 INFO citation: vertices.missing_title                        0
+22:30:39 INFO citation: vertices.categories                           40
+22:30:39 INFO citation: vertices.year_range                           1971-2020
+22:30:40 INFO citation: edges.1_raw_lines                             1166243
+22:30:40 INFO citation: edges.2_dropped_malformed                     0
+22:30:40 INFO citation: edges.3_dropped_self_citation                 0
+22:30:41 INFO citation: edges.4_dropped_duplicate                     0
+22:30:42 INFO citation: edges.5_dropped_dangling                      0
+22:30:42 INFO citation: direction.src_newer_than_dst                  1016324
+22:30:42 INFO citation: direction.src_older_than_dst                  20903
+22:30:42 INFO citation: direction.same_year                           129016
+22:30:42 INFO citation: direction.decision                            kept: src cites dst
+22:30:43 INFO citation: edges.6_clean                                 1166243
+22:30:43 INFO citation: edges.cites_newer_paper                       20903
+22:30:44 INFO citation: edges.reciprocal_pairs                        8444
+22:30:47 INFO citation: Clean graph written to hdfs://localhost:9000/user/jefin/citation/clean (169343 papers, 1166243 citations)
+  ✔ Output in HDFS:
+          9.2 MB  /user/jefin/citation/clean/edges
+          0.0 MB  /user/jefin/citation/clean/quality_report
+          8.6 MB  /user/jefin/citation/clean/vertices
+
+[22:30:51] Stage 2: GraphX   hdfs://localhost:9000/user/jefin/citation/clean  ->  hdfs://localhost:9000/user/jefin/citation/graph
+WARNING: Using incubator modules: jdk.incubator.vector
+22:30:52 WARN SparkConf: Note that spark.local.dir will be overridden by the value set by the cluster manager (via SPARK_LOCAL_DIRS in standalone/kubernetes and LOCAL_DIRS in YARN).
+22:30:55 INFO citation: -- running build_graph
+22:30:58 INFO citation: seconds.build_graph                           2.9
+22:30:59 INFO citation: graph.vertices                                169343
+22:30:59 INFO citation: graph.edges                                   1166243
+22:30:59 INFO citation: graph.density                                 4.067e-05
+22:30:59 INFO citation: -- running degrees
+22:31:01 INFO citation: seconds.degrees                               1.5
+22:31:01 INFO citation: degree.max_in                                 13155
+22:31:01 INFO citation: degree.mean_in                                6.89
+22:31:01 INFO citation: degree.max_out                                436
+22:31:01 INFO citation: degree.share_never_cited                      0.3662
+22:31:01 INFO citation: degree.share_no_references                    0.1030
+22:31:02 INFO citation: -- running pagerank
+22:31:34 INFO citation: seconds.pagerank                              32.4
+22:31:37 INFO citation: pagerank.spearman_vs_citations                0.9254
+22:31:37 INFO citation: pagerank.top100_overlap_with_top100_cited     31
+22:31:37 INFO citation: pagerank.top1000_overlap_with_top1000_cited   366
+22:31:37 INFO citation: -- running rank_support
+22:31:38 INFO citation: seconds.rank_support                          0.5
+22:31:38 INFO citation: pagerank.top1pct_papers                       1693
+22:31:38 INFO citation: pagerank.top1pct_with_le5_citations           122
+22:31:38 INFO citation: pagerank.top1pct_single_citer_majority        578
+22:31:38 INFO citation: pagerank.top1pct_well_supported               1095
+22:31:38 INFO citation: -- running connected_components
+22:31:43 INFO citation: seconds.connected_components                  4.4
+22:31:43 INFO citation: wcc.components                                1
+22:31:43 INFO citation: wcc.largest_size                              169343
+22:31:43 INFO citation: wcc.largest_share                             1.0000
+22:31:43 INFO citation: -- running strongly_connected_components
+22:32:11 INFO citation: scc.trim_rounds                               16
+22:32:11 INFO citation: scc.core_edges                                388044
+22:32:12 INFO citation: scc.core_vertices                             44097
+22:32:13 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:13 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:39 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:40 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:40 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:54 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:54 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:54 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:54 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:32:55 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:02 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:02 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:03 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:04 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:05 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:05 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:05 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:05 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:10 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:11 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:16 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:16 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:17 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:18 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:18 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:18 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:18 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:18 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:18 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:22 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:22 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:23 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:23 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:23 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:23 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:23 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:23 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:23 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:23 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:24 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:24 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:24 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:24 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:33:25 INFO citation: seconds.strongly_connected_components         101.9
+22:33:26 INFO citation: scc.cycles                                    2810
+22:33:26 INFO citation: scc.papers_in_cycles                          30930
+22:33:26 INFO citation: scc.largest_size                              23164
+22:33:26 INFO citation: -- running label_propagation
+22:34:21 INFO citation: seconds.label_propagation                     55.0
+22:34:21 INFO citation: lpa.communities                               8896
+22:34:21 INFO citation: lpa.communities_size_ge_10                    1893
+22:34:21 INFO citation: lpa.largest_size                              27938
+22:34:21 INFO citation: lpa.share_in_communities_ge_100               0.6111
+22:34:24 INFO citation: lpa.nmi_vs_category                           0.4069
+22:34:24 INFO citation: lpa.ari_vs_category                           0.2242
+22:34:24 INFO citation: lpa.purity_vs_category                        0.6456
+22:34:27 INFO citation: lpa.baseline_nmi                              0.0866
+22:34:27 INFO citation: lpa.baseline_ari                              -0.0000
+22:34:27 INFO citation: lpa.baseline_purity                           0.2084
+22:34:27 INFO citation: -- running triangle_count
+22:34:36 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:34:36 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:34:36 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:34:36 WARN ShippableVertexPartitionOps: Joining two VertexPartitions with different indexes is slow.
+22:34:37 INFO citation: seconds.triangle_count                        9.7
+22:34:39 INFO citation: triangles.total                               2233524
+22:34:39 INFO citation: triangles.avg_clustering                      0.2261
+22:34:39 INFO citation: triangles.transitivity                        0.0162
+22:34:39 INFO citation: triangles.random_graph_clustering             8.07e-05
+22:34:39 INFO citation: -- running shortest_paths
+22:34:57 INFO citation: seconds.shortest_paths                        17.5
+22:34:57 INFO citation: -- running category_flows
+22:34:57 INFO citation: seconds.category_flows                        0.3
+22:34:57 INFO citation: fields.within_field_citation_share            0.6551
+22:35:08 INFO citation: GraphX results written to hdfs://localhost:9000/user/jefin/citation/graph
+  ✔ Output in HDFS:
+          0.5 MB  /user/jefin/citation/graph/communities
+         13.9 MB  /user/jefin/citation/graph/paper_metrics
+          0.1 MB  /user/jefin/citation/graph/summary
+
+[22:35:13] Exporting summaries from HDFS to /home/jefin/Code/Krisko/clg/results
+  ✔ 17 tables in results/tables
+
+[22:35:33] Drawing charts
+  wrote charts/degree_distribution.png
+  wrote charts/pagerank_vs_citations.png
+  wrote charts/by_year.png
+  wrote charts/category_flows.png
+  wrote charts/community_validation.png
+  wrote charts/landmark_reach.png
+
+Pipeline finished in 5 min 41 s. Results: ./results
+EXIT 0

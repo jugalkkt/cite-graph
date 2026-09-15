@@ -1,0 +1,18 @@
+# Downloaded tools and data (re-created by scripts/00_setup_tools.sh and 01_download_data.sh)
+tools/
+data/
+
+# Build output
+spark-app/target/
+spark-app/.scala-build/
+spark-app/.bsp/
+.bsp/
+.scala-build/
+
+# Spark / Derby side files
+metastore_db/
+derby.log
+spark-warehouse/
+
+__pycache__/
+*.pyc

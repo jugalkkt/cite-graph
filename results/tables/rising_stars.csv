@@ -1,0 +1,21 @@
+pagerank_rank,title,year,category,in_degree,citation_rank,pagerank_x_avg,top_citer_share,well_supported
+163.0,learning internal representations,2019,cs.LG,21,9049.5,69.71666643341703,0.36098164362978047,true
+618.0,a tutorial on learning with bayesian networks,2020,cs.LG,66,2407.0,23.713847738784068,0.1587078135424111,true
+1281.0,semeval 2010 task 8 multi way classification of semantic relations between pairs of nominals,2019,cs.CL,95,1504.0,12.72295452903948,0.42518572954356293,true
+1405.0,grad cam visual explanations from deep networks via gradient based localization,2020,cs.CV,544,139.0,11.753066098278346,0.021097702888241546,true
+1466.0,introduction to online convex optimization,2019,cs.LG,191,589.0,11.296880974359155,0.07842144799760399,true
+1710.0,optimal random sampling from distributed streams revisited,2019,cs.DC,11,17897.0,9.816009977693142,0.8949809216187469,false
+3069.0,on the convergence of adam and beyond,2019,cs.LG,230,462.0,5.7849177857602925,0.033955619787742204,true
+3402.0,beyond sharing weights for deep domain adaptation,2019,cs.CV,59,2756.0,5.277218602541155,0.5573035356453587,false
+3625.0,xlnet generalized autoregressive pretraining for language understanding,2019,cs.CL,323,286.5,4.985404699629642,0.023177869689707222,true
+3775.0,multi view intact space learning,2019,cs.CV,29,6363.0,4.841619207739533,0.18306401297971192,true
+3956.0,roberta a robustly optimized bert pretraining approach,2019,cs.CL,282,342.5,4.614652958255683,0.028783080820029373,true
+4352.0,development of head mounted projection displays for distributed collaborative augmented reality applications,2019,cs.HC,2,67357.5,4.245084011803405,0.9694535020382674,false
+4666.0,rewriting abstract structures materialization explained categorically,2019,cs.LO,2,67357.5,3.975110677908696,0.9781446061080655,false
+4755.0,salient object detection a survey,2019,cs.CV,58,2811.0,3.9039135393628324,0.2295632382750845,true
+4846.0,one pixel attack for fooling deep neural networks,2019,cs.LG,200,554.0,3.839453036299069,0.04152723445034076,true
+5107.0,near optimal online algorithms and fast approximation algorithms for resource allocation problems,2019,cs.DS,32,5663.0,3.6470478881320414,0.3717922185099465,true
+5370.0,how many weights can a linear code have,2019,cs.IT,3,52742.0,3.472894141919344,0.9065640303145444,false
+5378.0,the seven sins of personal data processing systems under gdpr,2019,cs.CY,5,36257.0,3.4650587978603125,0.9108567426346659,false
+5483.0,analyzing the impact of gdpr on storage systems,2019,cs.DC,3,52742.0,3.4084200037844394,0.9428726808892558,false
+5802.0,a comprehensive survey on graph neural networks,2019,cs.LG,175,667.0,3.2224078095285615,0.027454276823265594,true
