@@ -1,3 +1,6 @@
+# Per-machine settings (see conf/pipeline.env)
+conf/local.env
+
 # Downloaded tools and data (re-created by scripts/00_setup_tools.sh and 01_download_data.sh)
 tools/
 data/

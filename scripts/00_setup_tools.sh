@@ -14,6 +14,7 @@ if [[ -x "$SPARK_HOME/bin/spark-submit" ]]; then
   ok "Spark already installed at $SPARK_HOME"
 else
   log "Downloading $SPARK_PACKAGE"
+  mkdir -p "$PROJECT_ROOT/tools"
   tgz="$PROJECT_ROOT/tools/$SPARK_PACKAGE.tgz"
   curl -fL --retry 3 -o "$tgz" "https://dlcdn.apache.org/spark/spark-$SPARK_VERSION/$SPARK_PACKAGE.tgz" \
     || curl -fL --retry 3 -o "$tgz" "https://archive.apache.org/dist/spark/spark-$SPARK_VERSION/$SPARK_PACKAGE.tgz"

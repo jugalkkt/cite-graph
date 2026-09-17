@@ -3,6 +3,9 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Optional per-machine settings (git-ignored). Loaded first so pipeline.env's defaults build on them.
+# shellcheck source=/dev/null
+[[ -f "$PROJECT_ROOT/conf/local.env" ]] && source "$PROJECT_ROOT/conf/local.env"
 # shellcheck source=../conf/pipeline.env
 source "$PROJECT_ROOT/conf/pipeline.env"
 
@@ -40,6 +43,8 @@ spark_submit() {
 Close some applications, or lower DRIVER_MEMORY and MEMORY_CAP_MB."
   (( MEMORY_CAP_MB > $(to_mb "$DRIVER_MEMORY") + 768 )) || die "MEMORY_CAP_MB must exceed DRIVER_MEMORY by at least 768 MB of JVM overhead"
   local cap=()
+  # sudo and su drop XDG_RUNTIME_DIR, which systemd-run --user needs to find the user's systemd manager
+  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
   if command -v systemd-run >/dev/null && systemd-run --user --scope -q true 2>/dev/null; then
     cap=(systemd-run --user --scope -q -p "MemoryMax=${MEMORY_CAP_MB}M" -p MemorySwapMax=0)
   else
