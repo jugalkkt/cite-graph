@@ -95,4 +95,4 @@ column -s, -t < results/tables/hidden_gems.csv | head -8
 - **Engineering lessons:** the local-mode scheduler hang, the Pregel-lineage memory blow-up, GraphX SCC
   exhausting RAM (fixed with trimming + a cgroup cap), and `/tmp` being RAM-backed.
 - **Analytical honesty:** PageRank's #1 paper owes its rank to one citer (dropout has a single in-dataset
-  reference), so 34% of the top 1% rest on one citer. We measured this and filtered derived lists.
+  reference), so 34% of the top 1% rest on one citer. We measured this and filtered the hidden-gems list and landmark choice.

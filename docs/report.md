@@ -135,14 +135,14 @@ partitioned with `EdgePartition2D`, then runs:
 | Analysis | GraphX API | Purpose | Time |
 |---|---|---|---|
 | Degrees | `inDegrees`, `outDegrees` | Citation counts, reference counts | 1.5 s |
-| PageRank | `pageRank(tol = 1e-4, reset = 0.15)` (Pregel) | Influence propagated through citations | 33.8 s |
+| PageRank | `pageRank(tol = 1e-4, reset = 0.15)` (Pregel) | Influence propagated through citations | 32.4 s |
 | Rank support | `aggregateMessages` | Share of each paper's PageRank coming from its single largest citer | 0.5 s |
-| Weakly connected components | `connectedComponents()` (Pregel) | Is the graph one connected body? | 5.1 s |
-| Strongly connected components | DataFrame trimming + `stronglyConnectedComponents(10)` | Citation cycles | 112.3 s |
-| Label propagation | `lib.LabelPropagation.run(g, 10)` (Pregel) | Communities from citations only | 54.4 s |
-| Triangle count | `triangleCount()` | Local clustering | 7.8 s |
-| Shortest paths | `lib.ShortestPaths.run(g, 5 landmarks)` (Pregel) | Reach of the top papers | 19.4 s |
-| Field flows | `triplets` + `reduceByKey` | Field-to-field citation matrix | 0.4 s |
+| Weakly connected components | `connectedComponents()` (Pregel) | Is the graph one connected body? | 4.4 s |
+| Strongly connected components | DataFrame trimming + `stronglyConnectedComponents(10)` | Citation cycles | 101.9 s |
+| Label propagation | `lib.LabelPropagation.run(g, 10)` (Pregel) | Communities from citations only | 55.0 s |
+| Triangle count | `triangleCount()` | Local clustering | 9.7 s |
+| Shortest paths | `lib.ShortestPaths.run(g, 5 landmarks)` (Pregel) | Reach of the top papers | 17.5 s |
+| Field flows | `triplets` + `reduceByKey` | Field-to-field citation matrix | 0.3 s |
 
 Every result is validated against something independent: PageRank against citation counts (Spearman
 correlation, top-k overlap), communities against arXiv subject labels *and* a size-matched random
@@ -197,8 +197,10 @@ PageRank (1,693 papers):
   (mean share 0.85), typically through a chain of single-reference papers or a two-paper citation cycle;
 - 1,095 (65%) are **well supported** (≥ 10 citations and no citer supplying more than half).
 
-We therefore report raw PageRank but base the derived lists on well-supported papers. **Hidden gems**
-are well-supported papers in the PageRank top 1% whose citation rank is far lower. Examples are
+We therefore report raw PageRank, but the derived results lean on well-supported papers: hidden gems and
+the shortest-path landmarks use only well-supported papers, and each field's and community's "most influential
+paper" prefers one. The top-PageRank, top-cited and rising-stars lists keep the raw ranking and show a
+`well_supported` column instead. **Hidden gems** are well-supported papers in the PageRank top 1% whose citation rank is far lower. Examples are
 Kavukcuoglu, Ranzato & LeCun's *Fast inference in sparse coding algorithms* (PageRank #17, citation rank
 3,612) and Turney's *Mining the web for synonyms: PMI-IR versus LSA* (#33 vs 2,453): foundational papers
 cited by the field's key works.
@@ -281,8 +283,8 @@ Hardware: one laptop (12 cores, 14 GB RAM shared with a desktop session), single
 | Stage | Wall time | Notes |
 |---|---|---|
 | Download (first run only) | ≈ 17 min | Throttled mirror, 32 parallel range requests |
-| Ingest into HDFS | ≈ 1 min | 218 MB, 7 blocks |
-| Stage 1 Spark ETL | ≈ 18 s | 169 K vertices, 1.17 M edges |
+| Ingest into HDFS | ≈ 20 s | 218 MB, 7 blocks |
+| Stage 1 Spark ETL | ≈ 22 s | 169 K vertices, 1.17 M edges |
 | Stage 2 GraphX | ≈ 4.5 min | Breakdown in Section 5.3 |
 | Export + charts | ≈ 20 s | |
 | **Whole pipeline** (`run_pipeline.sh`, data already downloaded) | **5 min 41 s** | Fresh HDFS; log in `results/pipeline_run.log` |
@@ -310,7 +312,7 @@ resident memory of the GraphX stage is **2.6–2.7 GB** across runs. The same jo
    each trimming round, and a near-acyclic graph needs many rounds. The kernel's out-of-memory killer
    terminated other desktop applications. We rewrote the trimming phase as DataFrame joins checkpointed to
    HDFS: 16 rounds cut the graph to a 44,097-vertex core. GraphX SCC then runs only on that core, with an
-   identical result in 112 s. We also now run Spark under a cgroup memory cap, so an overrun can only kill
+   identical result in 102 s. We also now run Spark under a cgroup memory cap, so an overrun can only kill
    Spark itself.
 8. **`/tmp` is RAM-backed (tmpfs) on the test machine.** Spark's default shuffle directory there silently
    consumed about 0.8 GB of RAM and pushed the job over its cap. Scratch space now lives on disk and is
