@@ -13,6 +13,9 @@ import org.apache.spark.sql.functions._
  * by Microsoft Academic Graph (MAG) id. This stage joins them into one vertex table, cleans
  * the edge list, decides the citation direction from the data, and records every row it
  * drops in a data-quality report.
+ *
+ * ogbn-mag (DATASET=mag) is ingested into the same HDFS layout. Its labels are publication venues
+ * given as MAG ids, and it has no titles file, so its papers are named "MAG paper <id>".
  */
 object CitationETL {
 
@@ -49,23 +52,41 @@ object CitationETL {
       .toDF("id_raw", "mag_raw")
       .select(tryLong("id_raw").as("id"), tryLong("mag_raw").as("mag_id"))
 
-    // "arxiv cs na" -> "cs.NA"
-    val categories = spark.read.option("header", "true").csv(s"$raw/mapping/labelidx2arxivcategory.csv")
+    // Label names: ogbn-arxiv "arxiv cs na" -> "cs.NA"; ogbn-mag numeric MAG venue id -> "venue:1070115".
+    // The file is labelidx2arxivcategory.csv or labelidx2venue.csv; resolve the name here, because Spark
+    // logs a FileNotFoundException stack trace when handed a wildcard path.
+    val labelNamesFile = {
+      val pattern = new org.apache.hadoop.fs.Path(s"$raw/mapping/labelidx2*.csv")
+      val found   = pattern.getFileSystem(spark.sparkContext.hadoopConfiguration).globStatus(pattern)
+      require(found != null && found.length == 1, s"expected exactly one file matching $pattern")
+      found.head.getPath.toString
+    }
+    val categories = spark.read.option("header", "true").csv(labelNamesFile)
       .toDF("label_raw", "name_raw")
-      .select(tryInt("label_raw").as("label"),
-              upper(regexp_extract(lower(trim($"name_raw")), "^arxiv cs ([a-z]{2})$", 1)).as("code"))
-      .select($"label", when($"code" =!= "", concat(lit("cs."), $"code")).as("category"))
+      .select(tryInt("label_raw").as("label"), lower(trim($"name_raw")).as("name"))
+      .select($"label",
+              upper(regexp_extract($"name", "^arxiv cs ([a-z]{2})$", 1)).as("code"),
+              regexp_extract($"name", "^([0-9]+)$", 1).as("venue"))
+      .select($"label", when($"code" =!= "", concat(lit("cs."), $"code"))
+                         .when($"venue" =!= "", concat(lit("venue:"), $"venue")).as("category"))
 
     // titleabs.tsv: mag_id <TAB> title <TAB> abstract. Abstracts can contain tabs, so split at most twice.
-    val titleRows = spark.read.text(s"$raw/titles/titleabs.tsv")
-      .select(split($"value", "\t", 3).as("f"))
-      .select(expr("try_cast(trim(try_element_at(f, 1)) AS BIGINT)").as("mag_id"),
-              regexp_replace(trim(expr("try_element_at(f, 2)")), "\\s+", " ").as("title"))
-      .cache()
-    m.add("titles.raw_rows", titleRows.count())
-    val titles = titleRows
-      .where($"mag_id".isNotNull && $"title".isNotNull && length($"title") > 0)
-      .groupBy("mag_id").agg(first("title").as("title"))
+    // Only ogbn-arxiv ships titles; without the file, papers are named by their MAG id below.
+    val titlesPath = new org.apache.hadoop.fs.Path(s"$raw/titles/titleabs.tsv")
+    val titles = if (!titlesPath.getFileSystem(spark.sparkContext.hadoopConfiguration).exists(titlesPath)) {
+      m.add("titles.raw_rows", 0)
+      Seq.empty[(Long, String)].toDF("mag_id", "title")
+    } else {
+      val titleRows = spark.read.text(titlesPath.toString)
+        .select(split($"value", "\t", 3).as("f"))
+        .select(expr("try_cast(trim(try_element_at(f, 1)) AS BIGINT)").as("mag_id"),
+                regexp_replace(trim(expr("try_element_at(f, 2)")), "\\s+", " ").as("title"))
+        .cache()
+      m.add("titles.raw_rows", titleRows.count())
+      titleRows
+        .where($"mag_id".isNotNull && $"title".isNotNull && length($"title") > 0)
+        .groupBy("mag_id").agg(first("title").as("title"))
+    }
 
     val joined = years.join(labels, "id")
       .join(mapping, Seq("id"), "left")
@@ -75,13 +96,15 @@ object CitationETL {
 
     val currentYear = java.time.Year.now.getValue
     val validVertex = $"year".between(1900, currentYear) && $"category".isNotNull && $"mag_id".isNotNull
-    val vertices = joined.where(validVertex)
-      .select("id", "mag_id", "year", "label", "category", "title")
+    val valid = joined.where(validVertex)
+    val vertices = valid
+      .select($"id", $"mag_id", $"year", $"label", $"category",
+              coalesce($"title", concat(lit("MAG paper "), $"mag_id")).as("title"))
       .cache()
     val vertexCount = vertices.count()
     m.add("vertices.dropped_invalid", joined.count() - vertexCount)
     m.add("vertices.clean", vertexCount)
-    m.add("vertices.missing_title", vertices.where($"title".isNull).count())
+    m.add("vertices.missing_title", valid.where($"title".isNull).count())
     m.add("vertices.categories", vertices.select("category").distinct().count())
     val yearRange = vertices.agg(min("year"), max("year")).first()
     m.add("vertices.year_range", s"${yearRange.getInt(0)}-${yearRange.getInt(1)}")
