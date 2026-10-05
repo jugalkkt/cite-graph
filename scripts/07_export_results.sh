@@ -11,7 +11,7 @@ for dir in $(hdfs dfs -ls -C "$HDFS_GRAPH/summary"); do
   hdfs dfs -getmerge "$dir/part-*.csv" "$RESULTS_DIR/tables/$name.csv"
 done
 rm -f "$RESULTS_DIR"/tables/.*.crc
-ok "$(ls "$RESULTS_DIR/tables" | wc -l) tables in results/tables"
+ok "$(ls "$RESULTS_DIR/tables" | wc -l) tables in $(basename "$RESULTS_DIR")/tables"
 
 log "Drawing charts"
-python3 "$PROJECT_ROOT/analysis/make_charts.py" "$RESULTS_DIR/tables" "$RESULTS_DIR/charts"
+LABEL_NOUN="$LABEL_NOUN" LABEL_SOURCE="$LABEL_SOURCE" python3 "$PROJECT_ROOT/analysis/make_charts.py" "$RESULTS_DIR/tables" "$RESULTS_DIR/charts"
