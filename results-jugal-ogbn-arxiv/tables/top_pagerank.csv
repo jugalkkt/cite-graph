@@ -1,0 +1,26 @@
+pagerank_rank,title,year,category,in_degree,citation_rank,pagerank_x_avg,top_citer_share,well_supported
+1.0,deep big simple neural nets for handwritten digit recognition,2010,cs.NE,93,1550.0,1599.749470647133,0.7190832536304517,false
+2.0,improving neural networks by preventing co adaptation of feature detectors,2012,cs.NE,808,84.0,1353.1164339932711,0.323279505630547,true
+3.0,rich feature hierarchies for accurate object detection and semantic segmentation,2013,cs.CV,2493,16.0,898.9856371717843,0.09131539024702066,true
+4.0,decaf a deep convolutional activation feature for generic visual recognition,2013,cs.CV,830,77.5,754.7779741695883,0.3375921638317885,true
+5.0,adam a method for stochastic optimization,2014,cs.LG,13155,1.0,662.285425637022,0.05936059531801233,true
+6.0,very deep convolutional networks for large scale image recognition,2014,cs.CV,9244,3.0,604.1307613579606,0.02860273920284158,true
+7.0,visualizing and understanding convolutional networks,2013,cs.CV,1828,23.0,579.29097555681,0.12416299602646881,true
+8.0,overfeat integrated recognition localization and detection using convolutional networks,2013,cs.CV,836,76.0,514.5238085669738,0.14482155283972659,true
+9.0,going deeper with convolutions,2014,cs.CV,3861,7.0,470.59360460023885,0.08367250992353417,true
+10.0,building high level features using large scale unsupervised learning,2011,cs.LG,268,367.0,450.8723941253322,0.2373039722839715,true
+11.0,efficient estimation of word representations in vector space,2013,cs.CL,2546,15.0,445.6846940743025,0.1612996148780995,true
+12.0,caffe convolutional architecture for fast feature embedding,2014,cs.CV,2687,14.0,438.07927662674496,0.039451763364905905,true
+13.0,deep residual learning for image recognition,2015,cs.CV,12527,2.0,425.27858810949493,0.01168782629526329,true
+14.0,representation learning a review and new perspectives,2012,cs.LG,947,65.0,411.52951417333674,0.6193631002299359,false
+15.0,imagenet large scale visual recognition challenge,2014,cs.CV,4238,5.0,406.40703449782893,0.09689616457771606,true
+16.0,sequence transduction with recurrent neural networks,2012,cs.NE,150,803.0,404.750080080558,0.6907510470379719,false
+17.0,fast inference in sparse coding algorithms with applications to object recognition,2010,cs.CV,47,3612.0,391.25590151923694,0.4987188433127667,true
+18.0,pedestrian detection with unsupervised multi stage feature learning,2012,cs.CV,111,1201.5,346.74689894968583,0.7351799387193445,false
+19.0,distributed representations of words and phrases and their compositionality,2013,cs.CL,3737,9.0,338.0916650111122,0.06373018504047927,true
+20.0,a fast and simple algorithm for training neural probabilistic language models,2012,cs.CL,98,1439.5,329.051932033568,0.5761389157648521,false
+21.0,speech recognition with deep recurrent neural networks,2013,cs.NE,845,75.0,328.6886564754772,0.28569301046048845,true
+22.0,batch normalization accelerating deep network training by reducing internal covariate shift,2015,cs.LG,4779,4.0,324.08207942675153,0.05316007021837876,true
+23.0,exact matrix completion via convex optimization,2008,cs.IT,568,127.5,298.82866210149115,0.1428465942510223,true
+24.0,generating sequences with recurrent neural networks,2013,cs.NE,651,112.0,293.00639706642676,0.3205191880351951,true
+25.0,sequence to sequence learning with neural networks,2014,cs.CL,2987,12.0,289.89633307984707,0.07614251997777577,true

@@ -1,0 +1,160 @@
+landmark,hops,papers,title,year,pagerank_rank,cumulative_papers
+88803,1,808,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,808
+88803,2,33688,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,34496
+88803,3,24462,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,58958
+88803,4,5488,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,64446
+88803,5,2322,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,66768
+88803,6,1526,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,68294
+88803,7,1322,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,69616
+88803,8,1504,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,71120
+88803,9,1460,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,72580
+88803,10,1255,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,73835
+88803,11,1635,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,75470
+88803,12,2421,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,77891
+88803,13,2949,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,80840
+88803,14,2715,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,83555
+88803,15,2423,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,85978
+88803,16,2385,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,88363
+88803,17,1722,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,90085
+88803,18,1239,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,91324
+88803,19,995,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,92319
+88803,20,779,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,93098
+88803,21,649,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,93747
+88803,22,499,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,94246
+88803,23,345,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,94591
+88803,24,280,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,94871
+88803,25,213,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,95084
+88803,26,223,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,95307
+88803,27,147,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,95454
+88803,28,141,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,95595
+88803,29,56,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,95651
+88803,30,16,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,95667
+88803,31,6,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,95673
+88803,32,3,improving neural networks by preventing co adaptation of feature detectors,2012,2.0,95676
+125272,1,2493,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,2493
+125272,2,31015,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,33508
+125272,3,22567,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,56075
+125272,4,6150,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,62225
+125272,5,2436,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,64661
+125272,6,1393,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,66054
+125272,7,1000,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,67054
+125272,8,835,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,67889
+125272,9,1051,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,68940
+125272,10,1352,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,70292
+125272,11,1705,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,71997
+125272,12,2352,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,74349
+125272,13,3205,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,77554
+125272,14,3396,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,80950
+125272,15,3270,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,84220
+125272,16,2584,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,86804
+125272,17,2194,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,88998
+125272,18,1437,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,90435
+125272,19,1071,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,91506
+125272,20,936,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,92442
+125272,21,758,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,93200
+125272,22,544,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,93744
+125272,23,473,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,94217
+125272,24,353,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,94570
+125272,25,304,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,94874
+125272,26,196,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,95070
+125272,27,193,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,95263
+125272,28,90,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,95353
+125272,29,25,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,95378
+125272,30,6,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,95384
+125272,31,3,rich feature hierarchies for accurate object detection and semantic segmentation,2013,3.0,95387
+14201,1,830,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,830
+14201,2,24442,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,25272
+14201,3,27569,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,52841
+14201,4,8519,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,61360
+14201,5,3089,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,64449
+14201,6,1548,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,65997
+14201,7,1019,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,67016
+14201,8,884,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,67900
+14201,9,1039,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,68939
+14201,10,1310,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,70249
+14201,11,1596,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,71845
+14201,12,2239,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,74084
+14201,13,3140,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,77224
+14201,14,3131,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,80355
+14201,15,3113,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,83468
+14201,16,2692,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,86160
+14201,17,2258,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,88418
+14201,18,1786,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,90204
+14201,19,1130,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,91334
+14201,20,951,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,92285
+14201,21,811,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,93096
+14201,22,598,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,93694
+14201,23,448,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,94142
+14201,24,367,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,94509
+14201,25,272,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,94781
+14201,26,248,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,95029
+14201,27,173,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,95202
+14201,28,166,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,95368
+14201,29,65,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,95433
+14201,30,16,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,95449
+14201,31,6,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,95455
+14201,32,3,decaf a deep convolutional activation feature for generic visual recognition,2013,4.0,95458
+1353,1,13155,adam a method for stochastic optimization,2014,5.0,13155
+1353,2,29084,adam a method for stochastic optimization,2014,5.0,42239
+1353,3,11667,adam a method for stochastic optimization,2014,5.0,53906
+1353,4,5328,adam a method for stochastic optimization,2014,5.0,59234
+1353,5,2951,adam a method for stochastic optimization,2014,5.0,62185
+1353,6,1719,adam a method for stochastic optimization,2014,5.0,63904
+1353,7,1247,adam a method for stochastic optimization,2014,5.0,65151
+1353,8,1011,adam a method for stochastic optimization,2014,5.0,66162
+1353,9,999,adam a method for stochastic optimization,2014,5.0,67161
+1353,10,1181,adam a method for stochastic optimization,2014,5.0,68342
+1353,11,1397,adam a method for stochastic optimization,2014,5.0,69739
+1353,12,2106,adam a method for stochastic optimization,2014,5.0,71845
+1353,13,2958,adam a method for stochastic optimization,2014,5.0,74803
+1353,14,3045,adam a method for stochastic optimization,2014,5.0,77848
+1353,15,2912,adam a method for stochastic optimization,2014,5.0,80760
+1353,16,2811,adam a method for stochastic optimization,2014,5.0,83571
+1353,17,2503,adam a method for stochastic optimization,2014,5.0,86074
+1353,18,2045,adam a method for stochastic optimization,2014,5.0,88119
+1353,19,1312,adam a method for stochastic optimization,2014,5.0,89431
+1353,20,1135,adam a method for stochastic optimization,2014,5.0,90566
+1353,21,924,adam a method for stochastic optimization,2014,5.0,91490
+1353,22,679,adam a method for stochastic optimization,2014,5.0,92169
+1353,23,479,adam a method for stochastic optimization,2014,5.0,92648
+1353,24,384,adam a method for stochastic optimization,2014,5.0,93032
+1353,25,289,adam a method for stochastic optimization,2014,5.0,93321
+1353,26,252,adam a method for stochastic optimization,2014,5.0,93573
+1353,27,174,adam a method for stochastic optimization,2014,5.0,93747
+1353,28,168,adam a method for stochastic optimization,2014,5.0,93915
+1353,29,65,adam a method for stochastic optimization,2014,5.0,93980
+1353,30,16,adam a method for stochastic optimization,2014,5.0,93996
+1353,31,6,adam a method for stochastic optimization,2014,5.0,94002
+1353,32,3,adam a method for stochastic optimization,2014,5.0,94005
+25208,1,9244,very deep convolutional networks for large scale image recognition,2014,6.0,9244
+25208,2,28646,very deep convolutional networks for large scale image recognition,2014,6.0,37890
+25208,3,17695,very deep convolutional networks for large scale image recognition,2014,6.0,55585
+25208,4,5148,very deep convolutional networks for large scale image recognition,2014,6.0,60733
+25208,5,2273,very deep convolutional networks for large scale image recognition,2014,6.0,63006
+25208,6,1336,very deep convolutional networks for large scale image recognition,2014,6.0,64342
+25208,7,1072,very deep convolutional networks for large scale image recognition,2014,6.0,65414
+25208,8,895,very deep convolutional networks for large scale image recognition,2014,6.0,66309
+25208,9,1098,very deep convolutional networks for large scale image recognition,2014,6.0,67407
+25208,10,1291,very deep convolutional networks for large scale image recognition,2014,6.0,68698
+25208,11,1323,very deep convolutional networks for large scale image recognition,2014,6.0,70021
+25208,12,1973,very deep convolutional networks for large scale image recognition,2014,6.0,71994
+25208,13,2921,very deep convolutional networks for large scale image recognition,2014,6.0,74915
+25208,14,3053,very deep convolutional networks for large scale image recognition,2014,6.0,77968
+25208,15,2881,very deep convolutional networks for large scale image recognition,2014,6.0,80849
+25208,16,2676,very deep convolutional networks for large scale image recognition,2014,6.0,83525
+25208,17,2356,very deep convolutional networks for large scale image recognition,2014,6.0,85881
+25208,18,1949,very deep convolutional networks for large scale image recognition,2014,6.0,87830
+25208,19,1284,very deep convolutional networks for large scale image recognition,2014,6.0,89114
+25208,20,1143,very deep convolutional networks for large scale image recognition,2014,6.0,90257
+25208,21,891,very deep convolutional networks for large scale image recognition,2014,6.0,91148
+25208,22,657,very deep convolutional networks for large scale image recognition,2014,6.0,91805
+25208,23,473,very deep convolutional networks for large scale image recognition,2014,6.0,92278
+25208,24,383,very deep convolutional networks for large scale image recognition,2014,6.0,92661
+25208,25,289,very deep convolutional networks for large scale image recognition,2014,6.0,92950
+25208,26,252,very deep convolutional networks for large scale image recognition,2014,6.0,93202
+25208,27,174,very deep convolutional networks for large scale image recognition,2014,6.0,93376
+25208,28,168,very deep convolutional networks for large scale image recognition,2014,6.0,93544
+25208,29,65,very deep convolutional networks for large scale image recognition,2014,6.0,93609
+25208,30,16,very deep convolutional networks for large scale image recognition,2014,6.0,93625
+25208,31,6,very deep convolutional networks for large scale image recognition,2014,6.0,93631
+25208,32,3,very deep convolutional networks for large scale image recognition,2014,6.0,93634
