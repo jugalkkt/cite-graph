@@ -14,7 +14,7 @@ ideas spread through the citation graph.
 | Question | Finding |
 |---|---|
 | Does PageRank agree with citation counts? | Overall yes (Spearman ρ = 0.93), but only 31 of the top 100 overlap. PageRank favours the foundational 2012–2014 deep-learning papers (dropout, R-CNN, DeCAF, Adam, VGG) |
-| Can PageRank be trusted? | 34% of the top-1% PageRank papers get most of their rank from a single citing paper, because ogbn-arxiv truncates reference lists. Measured with GraphX `aggregateMessages`; derived lists use only well-supported papers |
+| Can PageRank be trusted? | 34% of the top-1% PageRank papers get most of their rank from a single citing paper, because ogbn-arxiv truncates reference lists. Measured with GraphX `aggregateMessages`; hidden gems and landmarks use only well-supported papers |
 | Do citation communities match real fields? | Label propagation vs arXiv subject labels: NMI 0.41 (random baseline 0.09), ARI 0.22 (0.00), purity 0.65 (0.21) |
 | How inward-looking are fields? | 65.5% of citations stay in-field: cs.IT 88% and cs.CV 80%, but cs.AI only 39%. cs.CV ↔ cs.LG is the largest exchange (43 K citations each way) |
 | Is the graph acyclic, as time would suggest? | No: 2,810 citation cycles covering 18% of papers, caused by arXiv revisions and late-dated classics |
@@ -119,16 +119,43 @@ to overwrite the raw files in HDFS.
 These views are available: `papers` (one row per paper with every metric), `communities` (one row per
 label-propagation community) and `citations` (clean edges).
 
+### A larger dataset: ogbn-mag
+
+The pipeline runs by default on the paper-citation graph of
+[ogbn-mag](https://ogb.stanford.edu/docs/nodeprop/#ogbn-mag): 736,389 papers and 5,416,271 citations
+(4.6× the edges of ogbn-arxiv), published 2010–2019 across all sciences, each labelled with one of 349
+publication venues.
+
+```bash
+./run_pipeline.sh                # ogbn-mag (default): 19 min 47 s measured end to end (ETL ≈ 1 min, GraphX ≈ 17.5 min)
+```
+
+| | ogbn-arxiv (`DATASET=arxiv`) | ogbn-mag (default) |
+|---|---|---|
+| Papers / citations | 169,343 / 1,166,243 | 736,389 / 5,416,271 |
+| Labels used for validation | 40 arXiv CS subject areas (`cs.CV`, …) | 349 venues, as MAG ids (`venue:1070115`) |
+| Titles | Yes | None in the release; papers appear as `MAG paper <id>` |
+| HDFS base | `/user/$USER/citation` | `/user/$USER/citation-mag` |
+| Local results | `results/` | `results-mag/` |
+| Spark heap / memory cap | 2 GB / 3.5 GB | 6 GB / 8 GB |
+
+Only the download and ingest scripts know about the dataset: they put ogbn-mag's paper nodes and
+paper-cites-paper edges into the same HDFS raw layout as ogbn-arxiv, so the Spark ETL and GraphX stages run
+unchanged. The MAG ids can be looked up in [OpenAlex](https://openalex.org), e.g.
+`https://api.openalex.org/works/mag:<id>`.
+
 ### Configuration
 
 All knobs live in `conf/pipeline.env` and can be overridden from the environment, e.g.
-`DRIVER_MEMORY=4g LPA_MAX_STEPS=20 ./scripts/06_run_graph.sh`.
+`DRIVER_MEMORY=4g LPA_MAX_STEPS=20 ./scripts/06_run_graph.sh`. Machine-specific values (e.g. `HADOOP_HOME`,
+`RESULTS_DIR`) can go in an optional, git-ignored `conf/local.env`, which is loaded before `pipeline.env`.
 
 | Variable | Default | Meaning |
 |---|---|---|
+| `DATASET` | `mag` | `mag` (ogbn-mag) or `arxiv` (ogbn-arxiv, see above) |
 | `SPARK_MASTER` | `local[4]` | Use `yarn` to submit to the YARN cluster (02 then also starts YARN) |
-| `DRIVER_MEMORY` | `2g` | Spark driver heap |
-| `MEMORY_CAP_MB` | `3584` | Hard memory ceiling for the whole Spark JVM (systemd cgroup) |
+| `DRIVER_MEMORY` | `6g` (`2g` for arxiv) | Spark driver heap |
+| `MEMORY_CAP_MB` | `8192` (`3584` for arxiv) | Hard memory ceiling for the whole Spark JVM (systemd cgroup) |
 | `SPARK_SCRATCH` | `data/spark-scratch` | Shuffle/spill directory. Kept off `/tmp`, which is RAM-backed on many systems; emptied after every job |
 | `PAGERANK_TOL` / `PAGERANK_RESET` | `1e-4` / `0.15` | Dynamic PageRank convergence tolerance and reset probability |
 | `LPA_MAX_STEPS` | `10` | Label-propagation supersteps |
