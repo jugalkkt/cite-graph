@@ -16,7 +16,7 @@ import org.apache.spark.storage.StorageLevel
  * then runs Pregel-style algorithms that tabular tools cannot express in a single pass:
  * PageRank, weakly/strongly connected components, label propagation, triangle counting and
  * multi-source shortest paths. Every algorithm's output is validated against something
- * independent (raw citation counts, arXiv's own subject labels, a random baseline).
+ * independent (raw citation counts, the papers' publication venues, a random baseline).
  */
 object CitationGraphAnalytics {
 
@@ -108,8 +108,8 @@ object CitationGraphAnalytics {
 
     // Where does each paper's PageRank come from? A citing paper u passes PR(u) / outdeg(u) to every
     // paper it cites. aggregateMessages sums those contributions per paper and keeps the largest one,
-    // giving the share supplied by the single biggest citer. ogbn-arxiv only keeps arXiv-CS references,
-    // so many papers have one or two references left; a highly ranked paper with a single reference
+    // giving the share supplied by the single biggest citer. The dataset only keeps references to papers
+    // inside it, so many papers have one or two references left; a highly ranked paper with a single reference
     // hands *all* its rank to it. A share near 1 flags rank that rests on one citing paper.
     val support = m.timed("rank_support") {
       val prOut = graph
@@ -150,7 +150,7 @@ object CitationGraphAnalytics {
 
     // ----------------------------------------- 5. strongly connected components
     // A citation graph should be acyclic (you can only cite the past). Any SCC with more than
-    // one paper is a citation cycle, which on arXiv comes from papers revised after publication.
+    // one paper is a citation cycle, which comes from papers revised after publication or mis-dated.
     //
     // GraphX's built-in SCC repeatedly trims vertices that have no in- or out-edge, caching a new copy
     // of the graph every round. A near-acyclic graph needs many rounds, and running it on the full graph
@@ -186,7 +186,7 @@ object CitationGraphAnalytics {
     m.add("lpa.share_in_communities_ge_100",
       f"${communitySizes.where($"size" >= 100).agg(coalesce(sum("size"), lit(0L))).first().getLong(0).toDouble / n}%.4f")
 
-    // Validation: do the communities found from citations alone match arXiv's subject labels?
+    // Validation: do the communities found from citations alone match the publication venues?
     val labelled = communities.join(vertices.select("id", "category"), "id").cache()
     val (nmi, ari, purity) = partitionAgreement(labelled, "community", "category")
     m.add("lpa.nmi_vs_category", f"$nmi%.4f")

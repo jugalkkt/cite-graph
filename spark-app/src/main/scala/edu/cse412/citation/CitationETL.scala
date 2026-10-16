@@ -7,15 +7,12 @@ import org.apache.spark.sql.functions._
 /**
  * Stage 1 - Spark ETL (HDFS raw text -> HDFS Parquet).
  *
- * The raw ogbn-arxiv release is split over five files with three different layouts:
- * edges as "a,b" lines, years and labels as one value per line where the line number is
- * the paper id, and two header-carrying mapping files. Titles come from a separate TSV keyed
- * by Microsoft Academic Graph (MAG) id. This stage joins them into one vertex table, cleans
+ * The paper-citation part of ogbn-mag is split over five files with three different layouts:
+ * edges as "a,b" lines, years and venue labels as one value per line where the line number is
+ * the paper id, and two header-carrying mapping files (graph id -> Microsoft Academic Graph (MAG)
+ * paper id, label index -> MAG venue id). This stage joins them into one vertex table, cleans
  * the edge list, decides the citation direction from the data, and records every row it
- * drops in a data-quality report.
- *
- * ogbn-mag (DATASET=mag) is ingested into the same HDFS layout. Its labels are publication venues
- * given as MAG ids, and it has no titles file, so its papers are named "MAG paper <id>".
+ * drops in a data-quality report. The release has no titles, so papers are named "MAG paper <id>".
  */
 object CitationETL {
 
@@ -52,59 +49,25 @@ object CitationETL {
       .toDF("id_raw", "mag_raw")
       .select(tryLong("id_raw").as("id"), tryLong("mag_raw").as("mag_id"))
 
-    // Label names: ogbn-arxiv "arxiv cs na" -> "cs.NA"; ogbn-mag numeric MAG venue id -> "venue:1070115".
-    // The file is labelidx2arxivcategory.csv or labelidx2venue.csv; resolve the name here, because Spark
-    // logs a FileNotFoundException stack trace when handed a wildcard path.
-    val labelNamesFile = {
-      val pattern = new org.apache.hadoop.fs.Path(s"$raw/mapping/labelidx2*.csv")
-      val found   = pattern.getFileSystem(spark.sparkContext.hadoopConfiguration).globStatus(pattern)
-      require(found != null && found.length == 1, s"expected exactly one file matching $pattern")
-      found.head.getPath.toString
-    }
-    val categories = spark.read.option("header", "true").csv(labelNamesFile)
+    // Venue label names are numeric MAG venue ids: 1070115 -> "venue:1070115".
+    val categories = spark.read.option("header", "true").csv(s"$raw/mapping/labelidx2venue.csv")
       .toDF("label_raw", "name_raw")
-      .select(tryInt("label_raw").as("label"), lower(trim($"name_raw")).as("name"))
-      .select($"label",
-              upper(regexp_extract($"name", "^arxiv cs ([a-z]{2})$", 1)).as("code"),
-              regexp_extract($"name", "^([0-9]+)$", 1).as("venue"))
-      .select($"label", when($"code" =!= "", concat(lit("cs."), $"code"))
-                         .when($"venue" =!= "", concat(lit("venue:"), $"venue")).as("category"))
-
-    // titleabs.tsv: mag_id <TAB> title <TAB> abstract. Abstracts can contain tabs, so split at most twice.
-    // Only ogbn-arxiv ships titles; without the file, papers are named by their MAG id below.
-    val titlesPath = new org.apache.hadoop.fs.Path(s"$raw/titles/titleabs.tsv")
-    val titles = if (!titlesPath.getFileSystem(spark.sparkContext.hadoopConfiguration).exists(titlesPath)) {
-      m.add("titles.raw_rows", 0)
-      Seq.empty[(Long, String)].toDF("mag_id", "title")
-    } else {
-      val titleRows = spark.read.text(titlesPath.toString)
-        .select(split($"value", "\t", 3).as("f"))
-        .select(expr("try_cast(trim(try_element_at(f, 1)) AS BIGINT)").as("mag_id"),
-                regexp_replace(trim(expr("try_element_at(f, 2)")), "\\s+", " ").as("title"))
-        .cache()
-      m.add("titles.raw_rows", titleRows.count())
-      titleRows
-        .where($"mag_id".isNotNull && $"title".isNotNull && length($"title") > 0)
-        .groupBy("mag_id").agg(first("title").as("title"))
-    }
+      .select(tryInt("label_raw").as("label"), regexp_extract(trim($"name_raw"), "^([0-9]+)$", 1).as("venue"))
+      .select($"label", when($"venue" =!= "", concat(lit("venue:"), $"venue")).as("category"))
 
     val joined = years.join(labels, "id")
       .join(mapping, Seq("id"), "left")
       .join(categories, Seq("label"), "left")
-      .join(titles, Seq("mag_id"), "left")
       .cache()
 
     val currentYear = java.time.Year.now.getValue
     val validVertex = $"year".between(1900, currentYear) && $"category".isNotNull && $"mag_id".isNotNull
-    val valid = joined.where(validVertex)
-    val vertices = valid
-      .select($"id", $"mag_id", $"year", $"label", $"category",
-              coalesce($"title", concat(lit("MAG paper "), $"mag_id")).as("title"))
+    val vertices = joined.where(validVertex)
+      .select($"id", $"mag_id", $"year", $"label", $"category", concat(lit("MAG paper "), $"mag_id").as("title"))
       .cache()
     val vertexCount = vertices.count()
     m.add("vertices.dropped_invalid", joined.count() - vertexCount)
     m.add("vertices.clean", vertexCount)
-    m.add("vertices.missing_title", valid.where($"title".isNull).count())
     m.add("vertices.categories", vertices.select("category").distinct().count())
     val yearRange = vertices.agg(min("year"), max("year")).first()
     m.add("vertices.year_range", s"${yearRange.getInt(0)}-${yearRange.getInt(1)}")
@@ -157,7 +120,7 @@ object CitationETL {
       if (flip) withYears.select($"dst".as("src"), $"src".as("dst"), $"dst_year".as("src_year"), $"src_year".as("dst_year"))
       else withYears
 
-    // Citing a *newer* paper happens on arXiv when a paper is revised after publication.
+    // Citing a *newer* paper happens when a paper is revised after publication or its date is off.
     // These are real citations, so we keep them but flag them for the analysis stage.
     val edges = oriented
       .withColumn("cites_newer_paper", $"src_year" < $"dst_year")

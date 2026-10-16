@@ -1,10 +1,8 @@
 metric,value
 vertices.year_rows,736389
 vertices.label_rows,736389
-titles.raw_rows,0
 vertices.dropped_invalid,0
 vertices.clean,736389
-vertices.missing_title,736389
 vertices.categories,349
 vertices.year_range,2010-2019
 edges.1_raw_lines,5416271
