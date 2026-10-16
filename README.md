@@ -18,7 +18,7 @@ publication venues, and how far ideas spread through the citation graph.
 | Is the graph acyclic, as time would suggest? | No: 5,770 citation cycles covering 18.2% of papers, one of them 120,104 papers large |
 | How far do top papers reach? | The most influential paper is reached by 11.2% of all papers within 3 citation hops, 35.4% within 10; each landmark is eventually reached by about 43% |
 
-Results are in [results-jugal-ogbn-mag/](results-jugal-ogbn-mag/) (`tables/` and `charts/`).
+Results are in [results/](results/) (`tables/` and `charts/`).
 
 ## Tools and versions
 
@@ -53,25 +53,43 @@ this project uses its **paper** vertices and **paper-cites-paper** edges. Each p
 The zip is 412 MB, most of it a 332 MB paper-feature file that this pipeline does not use and does not unpack.
 In HDFS the five raw files take 89 MB.
 
-## Repository layout
+## Project structure
+
+Each pipeline stage has its own numbered folder holding both its run script and its code, so you can read
+the project in the same order the data flows through it.
 
 ```
-run_pipeline.sh            one command: setup → download → HDFS → ETL → GraphX → results
-conf/pipeline.env          versions, paths, HDFS layout, memory, algorithm parameters
-conf/log4j2.properties     quiet Spark logging for readable demo output
-scripts/00_setup_tools.sh  downloads Spark 4.0.4 into ./tools (SHA-512 verified, no sudo)
-scripts/01_download_data.sh  downloads ogbn-mag (parallel ranged requests)
-scripts/02_start_hadoop.sh starts HDFS, waits for safe mode to clear
-scripts/03_ingest_hdfs.sh  stage 0: decompress and stream raw files into HDFS
-scripts/04_build.sh        compiles the Scala application with scala-cli
-scripts/05_run_etl.sh      stage 1: Spark ETL
-scripts/06_run_graph.sh    stage 2: GraphX analytics
-scripts/07_export_results.sh  copies summary tables out of HDFS and draws charts
-scripts/query.sh           ad-hoc Spark SQL over the results in HDFS
-spark-app/                 Scala source (CitationETL, CitationGraphAnalytics, QueryResults)
-analysis/make_charts.py    draws the charts from the exported tables
-results-jugal-ogbn-mag/    exported tables and charts
+run_pipeline.sh                  runs every step below, in order
+conf/
+  pipeline.env                   all settings: paths, HDFS layout, memory, algorithm parameters
+  log4j2.properties              keeps Spark's log output short
+  local.env                      optional per-machine overrides (not in git)
+common/                          shared setup, used by every stage
+  common.sh                      shell helpers: loads the settings, starts Spark with a memory cap
+  Common.scala                   Scala helpers: argument parsing, metrics, writing CSV summaries
+  project.scala                  Scala build settings (Spark 4.0.4, Scala 2.13)
+  setup_tools.sh                 checks Java/Hadoop/scala-cli, downloads Spark into ./tools
+  start_hadoop.sh                starts HDFS
+  build.sh                       compiles all Scala code into target/citation-analyzer.jar
+0-ingest/                        stage 0: get the data into HDFS
+  download_data.sh               downloads ogbn-mag into ./data/raw
+  ingest_hdfs.sh                 decompresses the raw files and streams them into HDFS /raw
+1-etl/                           stage 1: Spark cleans the data          (HDFS /raw → /clean)
+  run_etl.sh
+  CitationETL.scala
+2-graph/                         stage 2: GraphX graph algorithms        (HDFS /clean → /graph)
+  run_graph.sh
+  CitationGraphAnalytics.scala
+3-export/                        stage 3: results out of HDFS            (HDFS /graph → results/)
+  export_results.sh              copies the summary tables out and draws the charts
+  make_charts.py                 the chart drawing (no analysis)
+  query.sh                       ad-hoc Spark SQL over the results in HDFS
+  QueryResults.scala             the Spark side of query.sh
+results/                         output: tables/ (CSV) and charts/ (PNG)
 ```
+
+Folders created when the pipeline runs (not in git): `tools/` (Spark), `data/` (downloads and Spark scratch
+space) and `target/` (the compiled jar).
 
 ## Prerequisites
 
@@ -85,7 +103,7 @@ results-jugal-ogbn-mag/    exported tables and charts
   cgroup capped at 8 GB (`MEMORY_CAP_MB`), so a runaway job can only kill itself, never other applications.
   Scripts refuse to start Spark when less RAM than that is available.
 
-Spark itself does **not** need to be installed: `scripts/00_setup_tools.sh` downloads it into `./tools`.
+Spark itself does **not** need to be installed: `common/setup_tools.sh` downloads it into `./tools`.
 
 ## Running it
 
@@ -99,23 +117,23 @@ GraphX ≈ 17.5 min (8.3 min of it strongly connected components), export ≈ 35
 Or one stage at a time (useful for the demo):
 
 ```bash
-./scripts/00_setup_tools.sh      # Spark into ./tools
-./scripts/01_download_data.sh    # dataset into ./data/raw
-./scripts/02_start_hadoop.sh     # HDFS up
-./scripts/03_ingest_hdfs.sh      # raw files → HDFS /user/$USER/citation-mag/raw
-./scripts/04_build.sh            # Scala → spark-app/target/citation-analyzer.jar
-./scripts/05_run_etl.sh          # Spark: /raw → /clean
-./scripts/06_run_graph.sh        # GraphX: /clean → /graph
-./scripts/07_export_results.sh   # /graph summaries → results folder
+./common/setup_tools.sh        # Spark into ./tools
+./0-ingest/download_data.sh    # dataset into ./data/raw
+./common/start_hadoop.sh       # HDFS up
+./0-ingest/ingest_hdfs.sh      # raw files → HDFS /user/$USER/citation-mag/raw
+./common/build.sh              # Scala → target/citation-analyzer.jar
+./1-etl/run_etl.sh             # Spark: /raw → /clean
+./2-graph/run_graph.sh         # GraphX: /clean → /graph
+./3-export/export_results.sh   # /graph summaries → results/
 ```
 
-Each step is idempotent, so re-running skips work that is already done. Use `FORCE=1 ./scripts/03_ingest_hdfs.sh`
+Each step is idempotent, so re-running skips work that is already done. Use `FORCE=1 ./0-ingest/ingest_hdfs.sh`
 to overwrite the raw files in HDFS.
 
 ### Querying the results
 
 ```bash
-./scripts/query.sh "SELECT title, year, in_degree, pagerank_rank FROM papers
+./3-export/query.sh "SELECT title, year, in_degree, pagerank_rank FROM papers
                     WHERE category = 'venue:1980519' ORDER BY pagerank_rank LIMIT 10"
 ```
 
@@ -125,7 +143,7 @@ label-propagation community) and `citations` (clean edges).
 ### Configuration
 
 All knobs live in `conf/pipeline.env` and can be overridden from the environment, e.g.
-`LPA_MAX_STEPS=20 ./scripts/06_run_graph.sh`. Machine-specific values (e.g. `HADOOP_HOME`, `RESULTS_DIR`)
+`LPA_MAX_STEPS=20 ./2-graph/run_graph.sh`. Machine-specific values (e.g. `HADOOP_HOME`, `RESULTS_DIR`)
 can go in an optional, git-ignored `conf/local.env`, which is loaded before `pipeline.env`.
 
 | Variable | Default | Meaning |
@@ -133,7 +151,7 @@ can go in an optional, git-ignored `conf/local.env`, which is loaded before `pip
 | `SPARK_MASTER` | `local[4]` | Use `yarn` to submit to the YARN cluster (02 then also starts YARN) |
 | `DRIVER_MEMORY` | `6g` | Spark driver heap |
 | `MEMORY_CAP_MB` | `8192` | Hard memory ceiling for the whole Spark JVM (systemd cgroup) |
-| `RESULTS_DIR` | `results-mag` | Where `07_export_results.sh` puts tables and charts |
+| `RESULTS_DIR` | `results` | Where `3-export/export_results.sh` puts tables and charts |
 | `SPARK_SCRATCH` | `data/spark-scratch` | Shuffle/spill directory. Kept off `/tmp`, which is RAM-backed on many systems; emptied after every job |
 | `PAGERANK_TOL` / `PAGERANK_RESET` | `1e-4` / `0.15` | Dynamic PageRank convergence tolerance and reset probability |
 | `LPA_MAX_STEPS` | `10` | Label-propagation supersteps |
@@ -157,9 +175,9 @@ can go in an optional, git-ignored `conf/local.env`, which is loaded before `pip
 | Symptom | Fix |
 |---|---|
 | `UnsupportedClassVersionError` or Spark refuses to start | Java 8 is active. The scripts pin `/usr/lib/jvm/java-21-openjdk-amd64`; set `CITATION_JAVA_HOME` if yours is elsewhere |
-| `HDFS is not reachable` | `./scripts/02_start_hadoop.sh`; check `jps` shows NameNode and DataNode |
+| `HDFS is not reachable` | `./common/start_hadoop.sh`; check `jps` shows NameNode and DataNode |
 | `Name node is in safe mode` | Wait, or `hdfs dfsadmin -safemode leave` |
 | Download crawls at ~5 KB/s | snap.stanford.edu throttles each connection; the script already uses 32 parallel range requests (`DOWNLOAD_PARALLELISM`) and resumes if re-run |
 | `Only N MB RAM available` | Close some applications, or lower `DRIVER_MEMORY` and `MEMORY_CAP_MB` together (cap must exceed heap by ≥ 768 MB) |
 | Spark exits with code 137 | It hit `MEMORY_CAP_MB` and the cgroup stopped it (other apps are unaffected). Raise the cap if you have spare RAM, or skip SCC with `SCC_ITERS=0` |
-| Spark job hangs with idle cores in local mode | Make sure `SPARK_LOCAL_IP=127.0.0.1` is set (`scripts/common.sh` does this). Otherwise HDFS-local tasks wait forever for a host with no executor |
+| Spark job hangs with idle cores in local mode | Make sure `SPARK_LOCAL_IP=127.0.0.1` is set (`common/common.sh` does this). Otherwise HDFS-local tasks wait forever for a host with no executor |
