@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# Downloads the selected dataset (DATASET=arxiv: ogbn-arxiv + paper titles; DATASET=mag: ogbn-mag)
-# into ./data/raw.
+# Downloads the ogbn-mag dataset into ./data/raw.
 #
 # snap.stanford.edu throttles every connection to ~6 KB/s, so a plain download of the
-# 150 MB (arxiv) or 430 MB (mag) takes hours. We split each file into 1 MB HTTP range requests fetched in parallel
+# 430 MB zip can take hours. We split each file into 1 MB HTTP range requests fetched in parallel
 # (DOWNLOAD_PARALLELISM connections), then stitch and integrity-check the result.
 source "$(dirname "$0")/common.sh"
 mkdir -p "$RAW_DIR"
@@ -37,16 +36,14 @@ fetch() {
   ok "$(basename "$out") ($(du -h "$out" | cut -f1))"
 }
 
-fetch "$DATASET_URL" "$RAW_DIR/$DATASET.zip"
-[[ -n "$TITLES_URL" ]] && fetch "$TITLES_URL" "$RAW_DIR/titleabs.tsv.gz"
+fetch "$DATASET_URL" "$RAW_DIR/mag.zip"
 
 log "Integrity checks"
-unzip -tq "$RAW_DIR/$DATASET.zip" >/dev/null && ok "$DATASET.zip is a valid archive"
-[[ -n "$TITLES_URL" ]] && gzip -t "$RAW_DIR/titleabs.tsv.gz" && ok "titleabs.tsv.gz is a valid gzip"
+unzip -tq "$RAW_DIR/mag.zip" >/dev/null && ok "mag.zip is a valid archive"
 
-if [[ ! -d "$RAW_DIR/$DATASET" ]]; then
-  # ogbn-mag's 332 MB paper feature vectors are not used by this pipeline, so they are not unpacked.
-  unzip -q "$RAW_DIR/$DATASET.zip" -d "$RAW_DIR" -x '*/node-feat.csv.gz'
+if [[ ! -d "$RAW_DIR/mag" ]]; then
+  # The 332 MB paper feature vectors are not used by this pipeline, so they are not unpacked.
+  unzip -q "$RAW_DIR/mag.zip" -d "$RAW_DIR" -x '*/node-feat.csv.gz'
 fi
 ok "Raw files:"
-find "$RAW_DIR/$DATASET" -name "*.csv.gz" -printf "     %-50P %8k KB\n" | sort
+find "$RAW_DIR/mag" -name "*.csv.gz" -printf "     %-50P %8k KB\n" | sort
