@@ -14,4 +14,4 @@ rm -f "$RESULTS_DIR"/tables/.*.crc
 ok "$(ls "$RESULTS_DIR/tables" | wc -l) tables in $(basename "$RESULTS_DIR")/tables"
 
 log "Drawing charts"
-LABEL_NOUN="$LABEL_NOUN" LABEL_SOURCE="$LABEL_SOURCE" python3 "$PROJECT_ROOT/analysis/make_charts.py" "$RESULTS_DIR/tables" "$RESULTS_DIR/charts"
+python3 "$PROJECT_ROOT/analysis/make_charts.py" "$RESULTS_DIR/tables" "$RESULTS_DIR/charts"

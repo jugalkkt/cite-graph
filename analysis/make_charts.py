@@ -8,7 +8,6 @@ no analysis happens here, just plotting.
 """
 import csv
 import math
-import os
 import sys
 import textwrap
 from pathlib import Path
@@ -24,9 +23,6 @@ SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#62
 BLUE_RAMP = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"]
 SURFACE, INK, INK_2, MUTED, GRID, AXIS = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7"
 SEQUENTIAL = LinearSegmentedColormap.from_list("blue", BLUE_RAMP)
-# What the dataset's labels are, set by conf/pipeline.env: arXiv subject areas (arxiv) or venues (mag).
-LABEL_NOUN = os.environ.get("LABEL_NOUN", "field")
-LABEL_SOURCE = os.environ.get("LABEL_SOURCE", "arXiv subject labels")
 
 plt.rcParams.update({
     "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "savefig.facecolor": SURFACE,
@@ -139,10 +135,10 @@ def category_flows(tables, out, top_n=15):
                         color="white" if v >= 0.45 else INK)
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.03, format=matplotlib.ticker.PercentFormatter(1.0))
     cbar.outline.set_visible(False)
-    cbar.set_label(f"Share of the citing {LABEL_NOUN}'s citations", color=INK_2)
-    ax.set_xlabel(f"Cited {LABEL_NOUN}")
-    ax.set_ylabel(f"Citing {LABEL_NOUN}")
-    ax.set_title(f"Where each {LABEL_NOUN}'s citations go ({top_n} largest {LABEL_NOUN}s)")
+    cbar.set_label("Share of the citing venue's citations", color=INK_2)
+    ax.set_xlabel("Cited venue")
+    ax.set_ylabel("Citing venue")
+    ax.set_title(f"Where each venue's citations go ({top_n} largest venues)")
     save(fig, out, "category_flows")
 
 
@@ -159,9 +155,8 @@ def community_validation(tables, out, s):
                      color=INK_2, fontsize=9)
     ax.set_xticks(list(xs), [m for m, _ in metrics])
     ax.set_ylim(0, 1.05)
-    ax.set_ylabel(f"Agreement with {LABEL_SOURCE}")
-    ax.set_title("Communities found from citations alone match real fields" if LABEL_NOUN == "field"
-                 else f"Citation communities vs. {LABEL_SOURCE}")
+    ax.set_ylabel("Agreement with publication venues")
+    ax.set_title("Citation communities vs. publication venues")
     ax.legend(loc="upper left")
     save(fig, out, "community_validation")
 
