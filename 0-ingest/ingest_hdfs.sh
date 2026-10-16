@@ -3,10 +3,10 @@
 # Files are decompressed on the way in (gunzip | hdfs dfs -put -) because gzip is not
 # splittable: a plain-text file can be read by several Spark tasks in parallel, one per block.
 # Set FORCE=1 to overwrite files already in HDFS.
-source "$(dirname "$0")/common.sh"
+source "$(dirname "$0")/../common/common.sh"
 require_hdfs
 
-[[ -d "$RAW_DIR/mag" ]] || die "Raw data missing. Run scripts/01_download_data.sh first."
+[[ -d "$RAW_DIR/mag" ]] || die "Raw data missing. Run 0-ingest/download_data.sh first."
 log "Ingesting raw files into $(hdfs_uri)$HDFS_RAW"
 
 # put <decompress command> <local file> <HDFS path under raw/>

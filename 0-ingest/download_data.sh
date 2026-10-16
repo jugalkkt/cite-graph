@@ -4,7 +4,7 @@
 # snap.stanford.edu throttles every connection to ~6 KB/s, so a plain download of the
 # 430 MB zip can take hours. We split each file into 1 MB HTTP range requests fetched in parallel
 # (DOWNLOAD_PARALLELISM connections), then stitch and integrity-check the result.
-source "$(dirname "$0")/common.sh"
+source "$(dirname "$0")/../common/common.sh"
 mkdir -p "$RAW_DIR"
 PARALLEL="${DOWNLOAD_PARALLELISM:-32}"
 CHUNK=$((1024 * 1024))

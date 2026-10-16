@@ -25,7 +25,7 @@ die()  { printf '\033[1;31m  ✘ %s\033[0m\n' "$*" >&2; exit 1; }
 hdfs_uri() { hdfs getconf -confKey fs.defaultFS 2>/dev/null; }
 
 require_hdfs() {
-  hdfs dfs -test -d / 2>/dev/null || die "HDFS is not reachable. Run scripts/02_start_hadoop.sh first."
+  hdfs dfs -test -d / 2>/dev/null || die "HDFS is not reachable. Run common/start_hadoop.sh first."
 }
 
 # "2g" -> 2048, "1536m" -> 1536
@@ -37,7 +37,7 @@ to_mb() { local v="${1,,}"; case "$v" in *g) echo $(( ${v%g} * 1024 ));; *m) ech
 #     on its own instead of the kernel OOM killer picking other applications.
 spark_submit() {
   local class="$1"; shift
-  [[ -f "$APP_JAR" ]] || die "Missing $APP_JAR. Run scripts/04_build.sh first."
+  [[ -f "$APP_JAR" ]] || die "Missing $APP_JAR. Run common/build.sh first."
   local avail_mb; avail_mb="$(awk '/MemAvailable/ {print int($2 / 1024)}' /proc/meminfo)"
   (( avail_mb >= MEMORY_CAP_MB )) || die "Only ${avail_mb} MB RAM available but Spark may use up to ${MEMORY_CAP_MB} MB. \
 Close some applications, or lower DRIVER_MEMORY and MEMORY_CAP_MB."

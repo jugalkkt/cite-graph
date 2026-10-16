@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Copies the small summary tables out of HDFS into ./results and draws the report charts.
-source "$(dirname "$0")/common.sh"
+source "$(dirname "$0")/../common/common.sh"
 require_hdfs
 
 log "Exporting summaries from HDFS to $RESULTS_DIR"
@@ -14,4 +14,4 @@ rm -f "$RESULTS_DIR"/tables/.*.crc
 ok "$(ls "$RESULTS_DIR/tables" | wc -l) tables in $(basename "$RESULTS_DIR")/tables"
 
 log "Drawing charts"
-python3 "$PROJECT_ROOT/analysis/make_charts.py" "$RESULTS_DIR/tables" "$RESULTS_DIR/charts"
+python3 "$PROJECT_ROOT/3-export/make_charts.py" "$RESULTS_DIR/tables" "$RESULTS_DIR/charts"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Stage 1 - Spark ETL: HDFS raw text -> clean Parquet vertices/edges in HDFS.
-source "$(dirname "$0")/common.sh"
+source "$(dirname "$0")/../common/common.sh"
 require_hdfs
 URI="$(hdfs_uri)"
 

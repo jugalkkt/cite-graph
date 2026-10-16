@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Stage 2 - GraphX analytics: clean Parquet in HDFS -> graph metrics + summaries in HDFS.
-source "$(dirname "$0")/common.sh"
+source "$(dirname "$0")/../common/common.sh"
 require_hdfs
 URI="$(hdfs_uri)"
-hdfs dfs -test -e "$HDFS_CLEAN/edges/_SUCCESS" || die "No clean edges in HDFS. Run scripts/05_run_etl.sh first."
+hdfs dfs -test -e "$HDFS_CLEAN/edges/_SUCCESS" || die "No clean edges in HDFS. Run 1-etl/run_etl.sh first."
 
 log "Stage 2: GraphX   $URI$HDFS_CLEAN  ->  $URI$HDFS_GRAPH"
 spark_submit CitationGraphAnalytics \
