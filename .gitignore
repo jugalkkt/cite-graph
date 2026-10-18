@@ -17,3 +17,11 @@ spark-warehouse/
 
 __pycache__/
 *.pyc
+report/demo_script.md
+report/report-preview.pdf
+report/report.tex
+.gitignore
+report/slides-preview.pdf
+report/slides.tex
+results/tables/graph_stats.csv
+
